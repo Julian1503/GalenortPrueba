@@ -1,7 +1,12 @@
-﻿namespace Presentacion.Models
+﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+
+namespace Presentacion.Models
 {
     public class ComprobanteModel
     {
+        [JsonProperty("id")]
+
         public int ComprobanteId { get; set; }
         public string NumeroComprobante { get; set; }
         public decimal Monto { get; set; }

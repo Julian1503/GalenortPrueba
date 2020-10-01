@@ -1,7 +1,12 @@
-﻿namespace Presentacion.Models
+﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+
+namespace Presentacion.Models
 {
     public class DetalleCtaCteModel
     {
+        [JsonProperty("id")]
+
         public int DetalleCtaCteId { get; set; }
         public string Periodo { get; set; }
         public decimal? Debe { get; set; }

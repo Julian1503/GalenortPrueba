@@ -7,7 +7,7 @@
 
 <div class="container">
     <div class="row my-3 justify-content-between">
-        <button class="btn btn-primary" @onclick="CrearPage">Crear nueva persona</button>
+        <button class="btn btn-primary" @onclick="()=>CrearPage()">Crear nueva persona</button>
         <div class="row">
             <label class="col-form-label col-4" for="txtNombre">Buscar :</label>
             <input class="form-control col-6" type="text" id="txtSearch" @bind="@Filtro" @onkeypress="((e)=> KeySearch(e))" placeholder="Busca un apellido" />

@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace Presentacion.Models
 {
     public class PersonaModel
     {
+        [JsonProperty("id")]
         public int PersonaId { get; set; }
+
         [Required(ErrorMessage = "El campo nombre es necesario")]
         public string Nombre { get; set; }
         [Required(ErrorMessage = "El campo apellido es necesario")]

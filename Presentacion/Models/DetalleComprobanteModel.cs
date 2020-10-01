@@ -1,7 +1,11 @@
-﻿namespace Presentacion.Models
+﻿using Newtonsoft.Json;
+
+namespace Presentacion.Models
 {
     public class DetalleComprobanteModel
     {
+
+        [JsonProperty("id")]
         public int DetalleComprobanteId { get; set; }
         public string Concepto { get; set; }
         public string Periodo { get; set; }
