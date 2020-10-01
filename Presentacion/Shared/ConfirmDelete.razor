@@ -1,0 +1,23 @@
+﻿@inject IModalService Modal
+<div class="container">
+
+    <div>
+        <p>¿Desea eliminar esta persona?</p>
+    </div>
+
+    <button @onclick="Confirmar" class="btn btn-primary">Confirmar</button>
+    <button @onclick="Cancelar" class="btn btn-danger">Cancelar</button>
+</div>
+@code {
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+    void Confirmar()
+    {
+        BlazoredModal.Close(ModalResult.Ok<string>("Si"));
+    }
+
+    void Cancelar()
+    {
+        BlazoredModal.Cancel();
+    }
+}

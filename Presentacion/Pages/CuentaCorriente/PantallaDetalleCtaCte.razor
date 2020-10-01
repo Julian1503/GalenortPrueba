@@ -1,0 +1,120 @@
+﻿@using Presentacion.Models
+@using Presentacion.Helpers
+@inject ServiciosRest Http;
+@inject NavigationManager NavigationManager;
+@page "/Deuda/{PacienteId}"
+@page "/Todo/{PacienteId}"
+
+
+<div class="container">
+    <div class="row my-3 justify-content-between">
+        @if (Paciente != null)
+        {
+            <h1>Deudas de @Paciente.Apellido</h1>
+        }
+    </div>
+    <div class="row justify-content-end my-4">
+        <div class="btn-group col-3">
+            <button type="button" @onclick="()=>AbrirOpciones()" class="btn btn-info dropdown-toggle " data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Acciones
+            </button>
+            <div class="dropdown-menu @Show" @onclick="()=> AbrirOpciones()">
+                <a class="dropdown-item" @onclick="()=>VerTodo()">Ver todo</a>
+                <a class="dropdown-item" @onclick="()=>VerDeuda()">Ver deuda</a>
+            </div>
+        </div>
+    </div>
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th></th>
+                <th>Periodo</th>
+                <th>Comprobante</th>
+                <th>Debe</th>
+                <th>Haber</th>
+                <th>Saldo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ctaCte != null)
+            {
+                @foreach (var detalle in ctaCte)
+                {
+                    <tr>
+
+                        <td></td>
+                        <td>@detalle.Periodo</td>
+                        <td>@detalle.Comprobante.NumeroComprobante</td>
+                        <td>@detalle.Debe</td>
+                        <td>@detalle.Haber</td>
+                        <td></td>
+                    </tr>
+                }
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td></td>
+                    <td></td>
+                    <td>@ctaCte.Where(x => x.Haber != null).Sum(x => x.Haber)</td>
+                    <td>@ctaCte.Where(x => x.Debe != null).Sum(x => x.Debe)</td>
+                    <td>@(ctaCte.Where(x => x.Haber != null).Sum(x => x.Haber) - ctaCte.Where(x => x.Debe != null).Sum(x => x.Debe))</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+@code {
+
+    [Parameter]
+    public string PacienteId { get; set; }
+
+    public PacienteModel Paciente { get; set; }
+    public string Show { get; set; }
+    public bool isShowing { get; set; }
+
+
+    private IEnumerable<DetalleCtaCteModel> ctaCte;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Paciente = await Http.GetOneAsync<PacienteModel>
+            (@$"https://localhost:44367/api/Paciente/{PacienteId}");
+        await VerTodo();
+    }
+
+    private void AbrirOpciones()
+    {
+        if (isShowing)
+        {
+            Show = "";
+        }
+        else
+        {
+            Show = "show";
+        }
+        isShowing = !isShowing;
+    }
+
+    private string CalcularTotal()
+    {
+        if (ctaCte != null)
+        {
+            decimal? sumador = 0;
+            sumador = ctaCte.Sum(x => x.Haber) - ctaCte.Sum(x => x.Debe);
+        }
+        return "";
+    }
+
+    public async Task VerTodo()
+    {
+        ctaCte = await Http.GetDataAsync<DetalleCtaCteModel>
+         ($@"https://localhost:44367/api/DetalleCtaCte/GetByPaciente/{PacienteId}");
+    }
+
+    public async Task VerDeuda()
+    {
+        ctaCte = await Http.GetDataAsync<DetalleCtaCteModel>
+            ($@"https://localhost:44367/api/DetalleCtaCte/GetByDeuda/{PacienteId}");
+    }
+}

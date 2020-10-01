@@ -1,0 +1,22 @@
+﻿
+<table class="table">
+    <thead class="table-dark">
+        <tr>
+            @foreach (var column in columnNames)
+            {
+                <td>@column</td>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+@code {
+    [Parameter]
+    public IEnumerable<string> columnNames { get; set; }
+    [Parameter]
+    public IEnumerable<object> data { get; set; }
+}

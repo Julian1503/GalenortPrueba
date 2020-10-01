@@ -1,0 +1,64 @@
+﻿@using System.Diagnostics.Tracing
+@using System.Diagnostics.CodeAnalysis
+<div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Titulo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>@Cuerpo</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="EventoBoton">@Boton</button>
+                <button type="button" hidden="@HidenBotonCancelar" class="btn btn-secondary" data-dismiss="modal" @onclick="() => Close()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@if (ShowBackdrop)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+
+
+@code {
+
+
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+    [Parameter]
+    public string Titulo { get; set; }
+    [Parameter]
+    public string Cuerpo { get; set; }
+    [Parameter]
+    public string Boton { get; set; }
+    [Parameter]
+    public EventCallback<MouseEventArgs> EventoBoton { get; set; }
+    [Parameter]
+    public bool HidenBotonCancelar { get; set; }
+
+
+    public void Open()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
+    }
+}

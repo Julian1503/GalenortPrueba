@@ -1,0 +1,61 @@
+﻿@using Presentacion.Models
+@using Presentacion.Helpers
+@inject ServiciosRest Http;
+@inject NavigationManager NavigationManager;
+@page "/tablaPaciente"
+
+
+<div class="container">
+    <div class="row my-3 justify-content-between">
+        <button class="btn btn-primary">Crear nuevo paciente</button>
+        <div class="row">
+            <label class="col-form-label col-4" for="txtNombre">Buscar :</label>
+            <input class="form-control col-6" type="text" id="txtSearch" @bind="@Filtro" @onkeypress="((e)=> KeySearch(e))" placeholder="Busca un apellido" />
+        </div>
+    </div>
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>Apellido</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (pacientes != null)
+            {
+                @foreach (var paciente in pacientes)
+                {
+                    <tr>
+
+                        <td>@paciente.Apellido</td>
+                        <td>
+                            <button class="btn btn-primary" @onclick="@(e => DeudaPage(e,paciente))">Ver</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private IEnumerable<PacienteModel> pacientes;
+    private string Filtro { get; set; }
+
+    public void CrearPage() => NavigationManager.NavigateTo($"/FormPersona/Crear");
+    public void DeudaPage(MouseEventArgs e, PacienteModel paciente) => NavigationManager.NavigateTo($"/Deuda/{paciente.PacienteId}");
+    public void TodoPage(MouseEventArgs e, PacienteModel paciente) => NavigationManager.NavigateTo($"/Todo/{paciente.PacienteId}");
+
+    public async void KeySearch(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            pacientes = await Http.GetDataAsync<PacienteModel>
+                (@$"https://localhost:44367/api/Paciente/{Filtro}");
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => pacientes = await Http.GetDataAsync<PacienteModel>
+    (@"https://localhost:44367/api/Paciente");
+}

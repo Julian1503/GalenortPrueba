@@ -1,0 +1,68 @@
+﻿@using Presentacion.Models
+@using Presentacion.Helpers
+@inject ServiciosRest Http;
+@inject NavigationManager NavigationManager;
+@page "/personaList"
+
+
+<div class="container">
+    <div class="row my-3 justify-content-between">
+        <button class="btn btn-primary" @onclick="CrearPage">Crear nueva persona</button>
+        <div class="row">
+            <label class="col-form-label col-4" for="txtNombre">Buscar :</label>
+            <input class="form-control col-6" type="text" id="txtSearch" @bind="@Filtro" @onkeypress="((e)=> KeySearch(e))" placeholder="Busca un apellido" />
+        </div>
+    </div>
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Dni</th>
+                <th>Direccion</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Personas != null)
+            {
+                @foreach (var persona in Personas)
+                {
+                    <tr>
+
+                        <td>@persona.Nombre</td>
+                        <td>@persona.Apellido</td>
+                        <td>@persona.Dni</td>
+                        <td>@persona.Direccion</td>
+                        <td>
+                            <button class="btn btn-primary" @onclick="@(e => EditarPage(e,persona.PersonaId))">Editar</button>
+                            <button class="btn btn-danger" @onclick="@(e => BorrarPage(e,persona.PersonaId))">Borrar</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private IEnumerable<PersonaModel> Personas;
+    private string Filtro { get; set; }
+
+    public void CrearPage() => NavigationManager.NavigateTo($"/FormPersona/Crear");
+    public void EditarPage(MouseEventArgs e, int id) => NavigationManager.NavigateTo($"/FormPersona/Editar/{id}");
+    public void BorrarPage(MouseEventArgs e, int id) => NavigationManager.NavigateTo($"/FormPersona/Borrar/{id}");
+
+    public async void KeySearch(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            Personas = await Http.GetDataAsync<PersonaModel>
+                (@$"https://localhost:44367/api/Persona/{Filtro}");
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => Personas = await Http.GetDataAsync<PersonaModel>
+    (@"https://localhost:44367/api/Persona");
+}

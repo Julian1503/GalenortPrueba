@@ -1,0 +1,113 @@
+﻿@page "/FormPersona/{Tipo}/{Id}"
+@page "/FormPersona/{Tipo}"
+@using Presentacion.Models
+@using Presentacion.Helpers
+@inject ServiciosRest Http
+
+@inject NavigationManager NavigationManager
+
+<div class="container ">
+    <Modal @ref="ModalPersonaEliminada" Titulo="Eliminacion" Cuerpo="@($"¿Esta seguro de borrar a {Persona.Nombre}?")" Boton="Aceptar" EventoBoton="@((e)=>BorrarPersona(Id))" HidenBotonCancelar="false"></Modal>
+    <Modal @ref="ModalPersonaCreada" Titulo="Creacion" Cuerpo="Usted a creado un campo con exito" Boton="Aceptar" EventoBoton="@(()=>ModalPersonaCreada.Close())" HidenBotonCancelar="true"></Modal>
+    <Modal @ref="ModalPersonaActualizada" Titulo="Modificacion" Cuerpo="Usted a modificadoun campo con exito" Boton="Aceptar" HidenBotonCancelar="true"></Modal>
+    <div>
+        <EditForm Model="@Persona" OnValidSubmit="@SubmitEvent">
+            <DataAnnotationsValidator />
+            <div class="form-group row">
+                <label class="col-form-label col-2" for="txtNombre">Nombre :</label>
+                <input class="form-control col-7" type="text" disabled="@(Bloqueado)" name="Nombre" @bind="@Persona.Nombre" id="txtNombre" />
+                <ValidationMessage For="@(()=> Persona.Nombre)"></ValidationMessage>
+            </div>
+            <div class="form-group row">
+                <label class="col-form-label col-2" for="txtNombre">Apellido :</label>
+                <input class="form-control col-7" type="text" disabled="@(Bloqueado)" name="Apellido" @bind="@Persona.Apellido" id="txtApellido" />
+                <ValidationMessage For="@(()=> Persona.Apellido)"></ValidationMessage>
+            </div>
+            <div class="form-group row">
+                <label class="col-form-label col-2" for="txtNombre">Direccion :</label>
+                <input class="form-control col-7" type="text" disabled="@(Bloqueado)" name="Direccion" @bind="@Persona.Direccion" id="txtDireccion" />
+                <ValidationMessage For="@(()=> Persona.Direccion)"></ValidationMessage>
+            </div>
+            <div class="form-group row">
+                <label class="col-form-label col-2" for="txtNombre">DNI :</label>
+                <input class="form-control col-7" type="number" maxlength="8" disabled="@(Bloqueado)" name="Dni" @bind="@Persona.Dni" id="txtDni" />
+                <ValidationMessage For="@(()=> Persona.Dni)"></ValidationMessage>
+            </div>
+            <div class="row justify-content-around">
+                <input type="submit" class="btn btn-primary col-3" value="@Tipo" id="btnSubmit" name="btnSubmit" />
+                <input type="submit" class="btn btn-secondary col-3" value="Cancelar" id="btnSubmit" name="btnSubmit" @onclick="@(() => NavigationManager.NavigateTo("/personaList"))" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+
+
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public string Tipo { get; set; }
+
+    private PersonaModel Persona { get; set; }
+
+    private Modal ModalPersonaEliminada { get; set; }
+    private Modal ModalPersonaCreada { get; set; }
+    private Modal ModalPersonaActualizada { get; set; }
+
+
+    private bool Bloqueado { get; set; }
+
+
+    public void SubmitEvent()
+    {
+
+        switch (Tipo)
+        {
+            case "Borrar":
+                ModalPersonaEliminada.Open();
+                break;
+            case "Editar":
+                EditarPersona();
+                break;
+            case "Crear":
+                CrearPersona();
+                break;
+        }
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Persona = new PersonaModel();
+        if (!String.IsNullOrEmpty(Id))
+        {
+            Persona = await Http.GetOneAsync<PersonaModel>($"https://localhost:44367/api/Persona/{Id}");
+            if (Tipo == "Borrar")
+            {
+                Bloqueado = true;
+            }
+        }
+    }
+
+
+    public async void CrearPersona()
+    {
+        await Http.PostDataAsync(Persona, "https://localhost:44367/api/Persona");
+        Persona = new PersonaModel();
+        this.StateHasChanged();
+        ModalPersonaCreada.Open();
+    }
+
+    public async void EditarPersona()
+    {
+        await Http.PutDataAsync(Persona, "https://localhost:44367/api/Persona");
+        NavigationManager.NavigateTo("/personaList");
+    }
+
+    public async void BorrarPersona(string id)
+    {
+        await Http.DeleteDataAsync<PersonaModel>(id, "https://localhost:44367/api/Persona");
+        NavigationManager.NavigateTo("/personaList");
+    }
+}
